@@ -9,8 +9,11 @@ public class AuthAPI(IHttpClientFactory factory) : AuthenticationStateProvider
 {
     private readonly HttpClient _httpClient = factory.CreateClient("API");
 
+    private bool IsAuthenticated { get; set; } = false;
+
     public override async Task<AuthenticationState> GetAuthenticationStateAsync()
     {
+        IsAuthenticated = false;
         var pessoa = new ClaimsPrincipal();
 
         var response = await _httpClient.GetAsync("auth/manage/info");
@@ -27,6 +30,7 @@ public class AuthAPI(IHttpClientFactory factory) : AuthenticationStateProvider
 
             var identity = new ClaimsIdentity(dados, "Cookies");
             pessoa = new ClaimsPrincipal(identity);
+            IsAuthenticated = true;
         }
 
         return new AuthenticationState(pessoa);
@@ -47,5 +51,17 @@ public class AuthAPI(IHttpClientFactory factory) : AuthenticationStateProvider
         }
         else
             return new AuthResponse { Success = false, Errors = ["Login ou senha inválidos."] };
+    }
+
+    public async Task LogoutAsync()
+    {
+        await _httpClient.PostAsync("auth/logout", null);
+        NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());
+    }
+
+    public async Task<bool> VerifyAuthenticated()
+    {
+        await GetAuthenticationStateAsync();
+        return IsAuthenticated;
     }
 }

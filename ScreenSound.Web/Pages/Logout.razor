@@ -1,0 +1,13 @@
+﻿@page "/logout"
+@inject AuthAPI api
+@inject NavigationManager navManager
+
+@code {
+    protected override async Task OnInitializedAsync() {
+        if (await api.VerifyAuthenticated())
+            await api.LogoutAsync();
+
+        await base.OnInitializedAsync();
+        navManager.NavigateTo("/");
+    }
+}
