@@ -1,6 +1,7 @@
 ﻿@page "/login"
 @using Microsoft.AspNetCore.Components.Authorization
 @inject AuthAPI api
+@inject NavigationManager navManager
 @attribute [AllowAnonymous]
 
 <MudPaper Class="px-8 pt-2 pb-4 mx-16 my-8" Justify="Justify.Center">
@@ -40,8 +41,15 @@
     private string Email { get; set; } = "";
     private string Senha { get; set; } = "";
 
+    [SupplyParameterFromQuery]
+    public string ReturnUrl { get; set; } = "";
+
     public async void FazerLogin()
     {
-        await api.LoginAsync(Email, Senha);
+        var response = await api.LoginAsync(Email, Senha);
+        if (response.Success && !string.IsNullOrWhiteSpace(ReturnUrl))
+        {
+            navManager.NavigateTo(ReturnUrl);
+        }
     }
 }
