@@ -1,6 +1,7 @@
 ﻿@page "/logout"
 @inject AuthAPI api
 @inject NavigationManager navManager
+@attribute [AllowAnonymous]
 
 @code {
     protected override async Task OnInitializedAsync() {
