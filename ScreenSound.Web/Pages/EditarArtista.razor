@@ -25,26 +25,34 @@
                           Required="true"
                           RequiredError="Campo obrigatório." />
 
+
             <div class="d-flex align-center justify-space-between mt-4">
-                <MudButton Variant="Variant.Filled"
-                           Color="Color.Primary"
-                           Disabled="@(!success)"
-                           Class="ml-auto"
-                           @onclick="Editar">
-                    Salvar
-                </MudButton>
-                <MudButton Variant="Variant.Filled"
-                           Color="Color.Warning"
-                           Class="ml-3"
-                           @onclick="Deletar">
-                    Excluir
-                </MudButton>
-                <MudButton Variant="Variant.Filled"
-                           Color="Color.Info"
-                           Class="ml-3"
-                           @onclick="VoltarParaListagem">
-                    Voltar
-                </MudButton>
+
+                <MudRating @bind-SelectedValue="Classificacao"
+                           @onclick="Avaliar" />
+
+                <div>
+                    <MudButton Variant="Variant.Filled"
+                               Color="Color.Primary"
+                               Disabled="@(!success)"
+                               Class="ml-auto"
+                               @onclick="Editar">
+                        Salvar
+                    </MudButton>
+                    <MudButton Variant="Variant.Filled"
+                               Color="Color.Warning"
+                               Class="ml-3"
+                               @onclick="Deletar">
+                        Excluir
+                    </MudButton>
+                    <MudButton Variant="Variant.Filled"
+                               Color="Color.Info"
+                               Class="ml-3"
+                               @onclick="VoltarParaListagem">
+                        Voltar
+                    </MudButton>
+                </div>
+
             </div>
 
         </MudForm>
@@ -62,8 +70,10 @@ else
     string[] errors = { };
     MudForm? form;
     public ArtistaResponse? Artista { get; set; }
+    public int? Id { get; set; } = null;
     public string? Nome { get; set; } = string.Empty;
     public string? Bio { get; set; }=string.Empty;
+    public int Classificacao { get; set; } = 0;
     [Parameter]
     public string? NomeArtista { get; set; }
 
@@ -77,6 +87,8 @@ else
         }
         Nome = Artista!.Nome;
         Bio = Artista!.Bio;
+        Classificacao = Convert.ToInt32(Artista!.Classificacao);
+        Id = Artista!.Id;
     }
     private void VoltarParaListagem()
     {
@@ -86,6 +98,12 @@ else
     protected async override Task OnParametersSetAsync()
     {
         Artista = await artistaAPI.GetArtistaPorNomeAsync(NomeArtista!);
+    }
+
+    private async Task Avaliar()
+    {
+        if (Id is not null)
+            await artistaAPI.AvaliaArtistaAsync(Id.Value, Classificacao);
     }
 
     private async Task Editar()
